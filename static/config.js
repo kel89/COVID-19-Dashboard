@@ -1,0 +1,72 @@
+// config.js
+
+/*
+   _____ _       _
+  / ___/(_)___  (_)___  ____ _
+  \__ \/ /_  / / / __ \/ __ `/
+ ___/ / / / /_/ / / / / /_/ /
+/____/_/ /___/_/_/ /_/\__, /
+                     /____/
+*/
+
+function size(){
+	/*
+	Sizes the dashboard and widgets
+	*/
+
+	// get available height
+	let dbh = $(window).height() - $(".navbar").height();
+
+	// set body height
+	$("#dashBody").height(dbh);
+
+	// set row height
+	$("#row2").height(dbh - $("#row1").height());
+
+}
+
+size();
+
+/*
+ _       ___     __           __
+| |     / (_)___/ /___ ____  / /______
+| | /| / / / __  / __ `/ _ \/ __/ ___/
+| |/ |/ / / /_/ / /_/ /  __/ /_(__  )
+|__/|__/_/\__,_/\__, /\___/\__/____/
+               /____/
+*/
+
+let widgets = {
+	'Total Cases KPI' : {
+							proto: totalCasesKPI,
+							config: {
+										targetId: "kpi1"
+									}
+						}
+}
+
+let masterWidgetList = [];
+let masterWidgetDict = {};
+$.each(widgets, function(key, val){
+	// Initialize each widget
+	let proto = val['proto'];
+	let config = val['config'];
+	let widget = new proto(config);
+	masterWidgetList.push(widget);
+	masterWidgetDict[key] = widget;
+})
+
+/*
+    __  __                ____
+   / / / /___ _____  ____/ / /__  __________
+  / /_/ / __ `/ __ \/ __  / / _ \/ ___/ ___/
+ / __  / /_/ / / / / /_/ / /  __/ /  (__  )
+/_/ /_/\__,_/_/ /_/\__,_/_/\___/_/  /____/
+*/
+$(window).resize(function(){
+	// resise the dashboard
+	size();
+
+	// Reszie the widgets as appropriate
+	//TODO
+})

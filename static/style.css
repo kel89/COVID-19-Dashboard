@@ -1,0 +1,30 @@
+/* style.css */
+
+/* Define some color variables */
+:root{
+	--main-red: #C72828;
+}
+
+body{
+	background-color: #272626;
+	/* background-image: linear-gradient(to right, black, darkgrey); */
+}
+
+.navbar {
+	background: #181A19;
+	/* background: black; */
+	/* background-image: linear-gradient(to right, darkgrey , black); */
+}
+
+.navbar a{
+	color: #C72828;
+}
+
+.widget{
+	border: 1px solid black;
+	border-radius: 5px;
+	padding: 1em;
+	background: #181A19;
+	color: grey;
+	height: 100%;
+}
