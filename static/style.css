@@ -3,6 +3,7 @@
 /* Define some color variables */
 :root{
 	--main-red: #C72828;
+	--main-green: #15BA31;
 }
 
 body{
@@ -27,4 +28,34 @@ body{
 	background: #181A19;
 	color: grey;
 	height: 100%;
+}
+
+.locationTable{
+	width: 100%;
+	max-height: 100%;
+}
+
+.locationTable tr{
+	transition: 0.1s;
+}
+
+.locationTable tr:nth-child(even){
+	background-color: #484B48;
+	color: black;
+}
+
+.locationTable tr:hover{
+	background-color: var(--main-red);
+	color: white;
+}
+
+div::-webkit-scrollbar {
+    width: 1em;
+}
+div::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+div::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
 }

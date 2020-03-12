@@ -49,6 +49,22 @@ class DataManager(object):
 		df = df.rename(columns={'index':'date', 0:'count'})
 		return df
 
+	def get_deaths(self, location='all'):
+		"""
+		REturns a time series of deaths for the given locations
+		"""
+		if location == 'all':
+			# Can sum all rows
+			deaths = self.deaths[self.date_cols].sum(axis=0)
+		else:
+			# DEAL WITH THIS FILTERING
+			pass
+
+		# Transform as needex
+		df = deaths.to_frame().reset_index()
+		df = df.rename(columns={'index':'date', 0:'count'})
+		return df
+
 	def get_confirmed_cases(self, location='all'):
 		"""
 		REturns the time series of all confirmed cases
@@ -60,4 +76,14 @@ class DataManager(object):
 		"""
 		return a timeseries of recoveries for location
 		"""
-		return
+		if location == 'all':
+			# Can sum all rows
+			reco = self.recovered[self.date_cols].sum(axis=0)
+		else:
+			# DEAL WITH THIS FILTERING
+			pass
+
+		# Transform as needex
+		df = reco.to_frame().reset_index()
+		df = df.rename(columns={'index':'date', 0:'count'})
+		return df

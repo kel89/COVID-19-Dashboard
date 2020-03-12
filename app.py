@@ -15,6 +15,19 @@ dm = DataManager()
 def index():
 	return render_template('index.html')
 
+@app.route('/get_all_data', methods=['POST'])
+def get_all_data():
+	confirmed = dm.confirmed.to_json(orient='records')
+	deaths = dm.deaths.to_json(orient='records')
+	recovered = dm.recovered.to_json(orient='records')
+
+	out = {
+		'confirmed' : confirmed,
+		'deaths': deaths,
+		'recovered' : recovered
+	}
+	return jsonify(out)
+
 @app.route('/get_locations', methods=['POST'])
 def get_locations():
 	location_data = dm.get_all_locations()
@@ -24,6 +37,16 @@ def get_locations():
 def get_active_cases():
 	case_series = dm.get_active_cases().to_json(orient='records')
 	return jsonify({'data':case_series})
+
+@app.route('/get_deaths', methods=['POST'])
+def get_deaths():
+	death_series = dm.get_deaths().to_json(orient='records')
+	return jsonify({'data':death_series})
+
+@app.route('/get_recovered', methods=['POST'])
+def get_recovered():
+	recovered_series = dm.get_recovered_cases().to_json(orient='records')
+	return jsonify({'data':recovered_series})
 
 # @app.route('/get_confirmed', methods=["POST"])
 # def get_confirmed():

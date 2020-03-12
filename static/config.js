@@ -15,7 +15,7 @@ function size(){
 	*/
 
 	// get available height
-	let dbh = $(window).height() - $(".navbar").height();
+	let dbh = $(window).height() - $(".navbar").height() - 80;
 
 	// set body height
 	$("#dashBody").height(dbh);
@@ -42,21 +42,57 @@ let widgets = {
 							config: {
 										targetId: "kpi1"
 									}
+						},
+
+	"Deaths KPI": 		{
+							proto: totalDeathsKPI,
+							config: {
+										targetId: "kpi2"
+									}
+						},
+
+	"Recovered KPI": 	{
+							proto: recoveredKPI,
+							config: {
+										targetId: "kpi3"
+									}
+						},
+
+	"Location List": 	{
+							proto: LocationList,
+							config: {
+										targetId:"list"
+									}
 						}
 }
 
 let masterWidgetList = [];
 let masterWidgetDict = {};
-$.each(widgets, function(key, val){
-	// Initialize each widget
-	let proto = val['proto'];
-	let config = val['config'];
-	let widget = new proto(config);
-	masterWidgetList.push(widget);
-	masterWidgetDict[key] = widget;
-})
+
+function launchWidgets(){
+	$.each(widgets, function(key, val){
+		// Initialize each widget
+		let proto = val['proto'];
+		let config = val['config'];
+		let widget = new proto(config);
+		masterWidgetList.push(widget);
+		masterWidgetDict[key] = widget;
+	})
+}
+
 
 /*
+    __  ___           __               ______                 __  _
+   /  |/  /___ ______/ /____  _____   / ____/_  ______  _____/ /_(_)___  ____  _____
+  / /|_/ / __ `/ ___/ __/ _ \/ ___/  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+ / /  / / /_/ (__  ) /_/  __/ /     / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+/_/  /_/\__,_/____/\__/\___/_/     /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+/*
+
+
+
+
+
     __  __                ____
    / / / /___ _____  ____/ / /__  __________
   / /_/ / __ `/ __ \/ __  / / _ \/ ___/ ___/

@@ -21,6 +21,7 @@
 	<!-- Load the widgets -->
 	<script src="{{url_for('static', filename='helpers.js')}}"></script>
 	<script src="{{url_for('static', filename='KPIHandlers.js')}}"></script>
+	<script src="{{url_for('static', filename='LocationList.js')}}"></script>
 
 </head>
 
@@ -98,17 +99,11 @@
 
 <script>
 	let locs;
+	let confirmedData;
+	let deathData;
+	let recoveryData;
+	let dates;
 	$(document).ready(function(){
-		// $.ajax({
-		// 	url: "get_confirmed",
-		// 	context: document.body,
-		// 	type: "POST",
-		// 	data: {'which': 'all'},
-		// 	success: function(data){
-		// 		console.log("Got confirmed list");
-		// 		console.log(data);
-		// 	}
-		// });
 
 		$.ajax({
 			type: "POST",
@@ -118,8 +113,26 @@
 				console.log(data);
 				locs = data;
 			}
+		});
+
+		$.ajax({
+			type: "POST",
+			url: "get_all_data",
+			context: document.body,
+			success: function(data){
+				confirmedData = JSON.parse(data['confirmed']);
+				deathData = JSON.parse(data['deaths']);
+				recoveryData = JSON.parse(data['recovered']);
+
+				dates = Object.keys(confirmedData[0]).slice(4);
+
+				launchWidgets();
+			}
 		})
-	})
+	});
+
+
+
 </script>
 
 </body>
