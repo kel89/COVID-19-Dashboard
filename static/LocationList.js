@@ -118,3 +118,9 @@ LocationList.prototype.makeTable = function(){
 
 	$(`#table-${this.id}`).append(html);
 }
+
+LocationList.prototype.resize = function(){
+	this.setupHTML();
+	this.setupData();
+	this.makeTable();
+}

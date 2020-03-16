@@ -19,3 +19,8 @@ function generateId(){
 	}
 	return i;
 }
+
+function deepCopy(d){
+	s = JSON.stringify(d);
+	return JSON.parse(s);
+}

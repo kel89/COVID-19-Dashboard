@@ -49,6 +49,10 @@ body{
 	color: white;
 }
 
+.btn {
+	font-size: .75em;
+}
+
 div::-webkit-scrollbar {
     width: 1em;
 }
