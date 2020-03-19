@@ -98,6 +98,19 @@ function launchWidgets(){
 let masterCountry;
 let masterState;
 
+function masterUpdate(){
+	/*
+	Calls the udpate functions in the widgets
+	*/
+	masterWidgetList.forEach(function(widget){
+		// console.log(widget);
+		console.log(masterCountry);
+		console.log(masterState);
+		if (typeof widget.update == "function"){
+			widget.update();
+		}
+	})
+}
 
 
 /*
