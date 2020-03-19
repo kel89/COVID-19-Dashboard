@@ -173,14 +173,27 @@ LocationList.prototype.makeTable = function(){
 	this.tableData.sort((a, b) => b['Active Cases'] - a['Active Cases']);
 	let html = '';
 	this.tableData.forEach(function(d){
+		console.log(d);
+		let location = d.Location;
+		let active = d['Active Cases'];
+		let deaths = d.Deaths;
+		let reco = d.Recoveries;
 		html += `
 			<tr>
-				<td><b>${d.Location.toLocaleString()}</b></td>
-				<td>${d['Active Cases'].toLocaleString()}</td>
-				<td>${d.Deaths.toLocaleString()}</td>
-				<td>${d.Recoveries.toLocaleString()}</td>
+				<td><b>${location}</b></td>
+				<td>${active == null ? 0 : active.toLocaleString()}</td>
+				<td>${deaths == null ? 0 : deaths.toLocaleString()}</td>
+				<td>${reco == null ? 0 : reco.toLocaleString()}</td>
 			</tr>
 		`;
+		// html += `
+		// 	<tr>
+		// 		<td><b>${d.Location.}</b></td>
+		// 		<td>${d['Active Cases'].toLocaleString()}</td>
+		// 		<td>${d.Deaths.toLocaleString()}</td>
+		// 		<td>${d.Recoveries.toLocaleString()}</td>
+		// 	</tr>
+		// `;
 	});
 
 	$(`#table-${this.id}`).html(this.tableHeaderHTML + html);
