@@ -79,6 +79,10 @@ TrendChart.prototype.setupHTML = function(){
 	$("#activeButton-"+this.id).click(() => this.handleButton("active"));
 	$("#deathButton-"+this.id).click(() => this.handleButton("death"));
 	$("#recoveryButton-"+this.id).click(() => this.handleButton("recovery"));
+
+	$("body").append(`
+		<div id='tooltip-${this.id}' class='myTooltip'></div>
+	`)
 }
 
 TrendChart.prototype.setupSVG = function(){
@@ -95,7 +99,10 @@ TrendChart.prototype.setupSVG = function(){
 	this.svg = d3.select("#chart-"+this.id)
 		.append('svg')
 		.attr('width', this.width)
-		.attr('height', this.height);
+		.attr('height', this.height)
+		.on('mouseover', () => this.showTooltip())
+		.on('mousemove', () => this.moveTooltip())
+		.on('mouseout', () => this.hideTooltip());
 
 	this.g = this.svg.append('g')
 		.attr('transform', `translate(${this.margin.left}, ${this.margin.top})`);
@@ -121,13 +128,13 @@ TrendChart.prototype.setupData = function(){
 
 		// do the subtractions
 		data = {}
-		console.log(conf);
+		// console.log(conf);
 		dates.forEach(function(date){
 			data[date] = conf[date] - death[date] - reco[date];
 		});
 
 		// format the data correctly
-		console.log(data);
+		// console.log(data);
 		this.plotData.push(this.formatData(data, "Active"));
 	}
 
@@ -189,9 +196,9 @@ TrendChart.prototype.formatData = function(data, name){
 	Takes in a dictionary of data and transforms it into
 	an array, takes in optional name
 	*/
-	console.log("there");
-	console.log(data);
-	console.log(name);
+	// console.log("there");
+	// console.log(data);
+	// console.log(name);
 	let newData = [];
 	dates.forEach(function(date){
 		newData.push({
@@ -356,6 +363,107 @@ TrendChart.prototype.handleButton = function(which){
 
 }
 
+TrendChart.prototype.showTooltip = function(){
+	/*
+	Shows tooltip and drops a line
+	*/
+	// console.log(d3.event.pageX);
+	// console.log(d3.event.pageY);
+	let x_page = event.pageX;
+	let y_page = event.pageY;
+	let x = x_page - $(this.svg.node()).offset().left - this.margin.left;
+	let y = y_page - $(this.svg.node()).offset().top - this.margin.top;
+
+	// Get closest date
+	let date = this.xScale.invert(x);
+	let min_distance = Infinity;
+	let closestDate;
+	dates.forEach(function(d){
+		d = new Date(d);
+		let dist = Math.abs(d.getTime() - date.getTime());
+		if ( dist < min_distance ){
+			min_distance = dist;
+			closestDate = d
+		}
+	});
+
+	// Get the data
+	let ds = moment(closestDate).format("M/D/YY")
+	let pd = this.plotData.flat(2);
+	let points = pd.filter(x => x.x == ds);
+	let html = '';
+	if (masterCountry != undefined){
+		html += `<b>${masterCountry}</b><br>`
+	}
+	html += `<b>Date:</b> ${ds}<br>`;
+	points.forEach(function(point){
+		html += `
+		<b>${point.which}: </b>${point.y.toLocaleString()} <br>
+		`;
+	});
+
+	let tt = $("#tooltip-"+this.id);
+	tt.html(html);
+	let w = tt.width() - 20;
+	let tx = x_page > window.innerWidth * .66 ? x_page - 80 : x_page + 20;
+	// $("#tooltip-"+this.id).position({top:y_page - 20, left:x_page + 20})
+	$("#tooltip-"+this.id).css({top:y_page - 20, left: (x_page - 120)})
+
+	// $("#tooltip-"+this.id).position({top:100, left:100})
+
+	tt.show();
+
+	// Make a line
+	this.g.selectAll(".highlightLine").remove();
+	this.g.append('line')
+		.attr('class', 'highlightLine')
+		.attr('x1', this.xScale(closestDate))
+		.attr('x2', this.xScale(closestDate))
+		.attr('y1', 0)
+		.attr('y2', this.chartHeight)
+		.attr('stroke', 'grey')
+		.attr('stroke-width', '2px');
+}
+
+TrendChart.prototype.moveTooltip = function(){
+	let x_page = event.pageX;
+	let y_page = event.pageY;
+	let x = x_page - $(this.svg.node()).offset().left - this.margin.left;
+	let y = y_page - $(this.svg.node()).offset().top - this.margin.top;
+
+	// Get closest date
+	let date = this.xScale.invert(x);
+	let min_distance = Infinity;
+	let closestDate;
+	dates.forEach(function(d){
+		d = new Date(d);
+		let dist = Math.abs(d.getTime() - date.getTime());
+		if ( dist < min_distance ){
+			min_distance = dist;
+			closestDate = d
+		}
+	});
+
+	let w = $("#tooltip-" + this.id).width() - 20
+	let tx = x_page > window.innerWidth * .66 ? x_page - 80 : x_page + 20;
+	$("#tooltip-"+this.id).css({top:y_page - 20, left: (x_page -120)})
+	// $("#tooltip-"+this.id).position({top:event.pageY - 20, left:event.pageX + 20})
+	// $("#tooltip-"+this.id).offset({top:d3.event.pageY - 20, left:d3.event.pageX + 20})
+
+
+	// Make a line
+	this.g.select('.highlightLine')
+		.attr('x1', this.xScale(closestDate))
+		.attr('x2', this.xScale(closestDate))
+		.attr('y1', 0)
+		.attr('y2', this.chartHeight);
+}
+
+TrendChart.prototype.hideTooltip = function(){
+	this.g.selectAll(".highlightLine").remove();
+	$("#tooltip-"+this.id).hide();
+}
+
 TrendChart.prototype.update = function(){
 	/*
 	Can be called to replot with new parameters / data
@@ -366,7 +474,52 @@ TrendChart.prototype.update = function(){
 			Trend (${masterCountry + (masterState == undefined ? "" : " " + masterState)})
 		`);
 	}
+	else{
+		$("#title-"+this.id).html(`Trend (Global)`);
+	}
 
 	this.setupData();
 	this.plot();
 }
+
+/*
+	// Get the date
+	let date = this.xScale.invert(x);
+	let startDate = this.xScale.domain()[0]
+	let endDate = this.xScale.domain()[1]
+	if ( (date.getTime() < startDate.getTime()) | (date.getTime() > endDate.getTime()) ){
+		console.log('do nothing');
+		return;
+	}
+
+	// get a new date excluding the time
+	let trunc = date.getMonth() + "/" + date.getDate() + "/" + date.getFullYear();
+	date = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+	// Find matching data
+	let dat = this.plotData.filter(function(d){
+		d = d.x;
+		return d == trunc;
+	})[0];
+
+	// Add vertica line
+	this.g.selectAll(".highlightLine").remove();
+	this.g.append('line')
+		.attr('class', 'highlightLine')
+		.attr('x1', this.xScale(date))
+		.attr('x2', this.xScale(date))
+		.attr('y1', 0)
+		.attr('y2', this.chartHeight)
+		.style('stroke', 'grey')
+		.style('stroke-width', '2px')
+
+	console.log(dat);
+	let tt = $("#tooltip-"+this.id);
+	$("#tooltip-"+this.id).html(`
+		<b>Date:</b> ${trunc}<br>
+		<b>Value:</b> ${dat.val}
+	`)
+
+	tt.offset({top:y_page-20, left:x_page + 20});
+	tt.show();
+*/

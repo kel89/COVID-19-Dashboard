@@ -173,7 +173,7 @@ LocationList.prototype.makeTable = function(){
 	this.tableData.sort((a, b) => b['Active Cases'] - a['Active Cases']);
 	let html = '';
 	this.tableData.forEach(function(d){
-		console.log(d);
+		// console.log(d);
 		let location = d.Location;
 		let active = d['Active Cases'];
 		let deaths = d.Deaths;

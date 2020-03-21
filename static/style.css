@@ -54,6 +54,17 @@ body{
 	font-size: .75em;
 }
 
+.myTooltip{
+	position: absolute;
+	background: black;
+	color: white;
+	max-width: 200px;
+	border-radius:2px;
+	padding: 3px;
+	display: none;
+	font-size: .75em;
+}
+
 div::-webkit-scrollbar {
     width: 1em;
 }
