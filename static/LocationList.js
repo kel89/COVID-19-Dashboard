@@ -25,10 +25,12 @@ LocationList.prototype.setupHTML = function(){
 	to select a date)
 	*/
 	this.tableHeaderHTML = `
-	<col width='30%'>
-	<col width='23'>
-	<col width='23%'>
-	<col width='23%'>
+	<!--
+	<col width='25%'>
+	<col width='25'>
+	<col width='25%'>
+	<col width='25%'>
+	-->
 	<tr>
 		<th>Location</th>
 		<th>Active Cases</th>
@@ -40,7 +42,7 @@ LocationList.prototype.setupHTML = function(){
 	let html = `
 	<div id='header-${this.id}'>
 		<button id='back-${this.id}' class='btn btn-outline-secondary'
-			style='width:100%;display:none;'>
+			style='width:100%; display:None;'>
 			Back
 		</button>
 	</div>
@@ -56,7 +58,7 @@ LocationList.prototype.setupHTML = function(){
 	$("#container-"+this.id).height(targetHeight);
 
 	// Attach event handler to back button
-	console.log($("#back-"+this.id));
+	// console.log($("#back-"+this.id));
 	$("#back-"+this.id).click(() => this.back());
 
 }
@@ -78,8 +80,7 @@ LocationList.prototype.setupData = function(){
 			'State': d['Province/State']
 		}
 	});
-	// locations = d3.set(locations).values();
-	// console.log(locations);
+
 	let tableData = [];
 
 	// check to see if we need to pass over to the countries based on
@@ -88,7 +89,11 @@ LocationList.prototype.setupData = function(){
 	if (masterCountry != undefined){
 		// check to see if there are states?
 		if (locations.filter(x => x.Country == masterCountry).map(x => x.State).length == 1){
+			// There are no states, so just show country
+			this.showing = 'Country'
+			masterState = undefined;
 			pass = false;
+			
 			// hide the back button
 			$("#back-"+this.id).hide();
 		}
@@ -97,7 +102,7 @@ LocationList.prototype.setupData = function(){
 	// If state is defined, filter on that
 	if (masterCountry != undefined & pass){
 		// get the states
-		console.log(locations.filter(x => x.Country == masterCountry));
+		// console.log(locations.filter(x => x.Country == masterCountry));
 
 		let states = locations.filter(x => x.Country == masterCountry).map(x => x.State);
 		states.forEach(function(state){
@@ -120,7 +125,7 @@ LocationList.prototype.setupData = function(){
 
 	}
 	else{
-		console.log("undefined country, showing all");
+		// console.log("undefined country, showing all");
 		let countries = d3.set(locations.map(x => x.Country)).values();
 		// console.log(countries);
 		countries.forEach(function(country){
@@ -215,14 +220,16 @@ LocationList.prototype.rowClick = function(row){
 		// switch to state
 		masterCountry = where;
 		$("#back-"+this.id).show();
+		this.showing="State"
 
 	}
 	else{
 		// Switch to country level
-		masterCountry = undefined;
-		masterState = undefined;
+		// masterCountry = undefined;
+		masterState = where;
 
 	}
+
 
 	masterUpdate();
 }

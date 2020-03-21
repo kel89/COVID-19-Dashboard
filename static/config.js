@@ -102,10 +102,12 @@ function masterUpdate(){
 	/*
 	Calls the udpate functions in the widgets
 	*/
+	console.log(masterCountry);
+	console.log(masterState);
 	masterWidgetList.forEach(function(widget){
 		// console.log(widget);
-		console.log(masterCountry);
-		console.log(masterState);
+		// console.log(masterCountry);
+		// console.log(masterState);
 		if (typeof widget.update == "function"){
 			widget.update();
 		}

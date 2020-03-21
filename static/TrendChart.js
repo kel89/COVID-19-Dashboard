@@ -151,7 +151,7 @@ TrendChart.prototype.setupData = function(){
 		this.plotData.push(this.formatData(reco, "Recoveries"));
 	}
 
-	console.log(this.plotData);
+	// console.log(this.plotData);
 }
 
 TrendChart.prototype.applyFilter = function(data){
