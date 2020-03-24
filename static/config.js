@@ -23,6 +23,10 @@ function size(){
 	// set row height
 	$("#row2").height(dbh - $("#row1").height());
 
+	// set a min height for lin chart for mobile
+	$("#chart").css({'min-height':'300px'})
+	$("#list").css({'min-height':'300px'})
+
 }
 
 size();

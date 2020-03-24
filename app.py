@@ -56,7 +56,7 @@ def get_recovered():
 
 if __name__ == "__main__":
 	# Run the app
-	app.run(debug=True, host="0.0.0.0", port=7191, use_reloader=True, threaded=True)
+	app.run(debug=True, host="0.0.0.0", port=5000, use_reloader=True, threaded=True)
 
 	# Runs when the server is stopped (ctr + c)
 	print("\n\n")

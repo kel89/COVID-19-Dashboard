@@ -10,7 +10,7 @@ var TrendChart = function(config){
 	this.targetId = undefined;
 	this.show = ["active"];
 	this.margin = {'left': 50, 'top': 40, 'right': 20, 'bottom': 20};
-	this.r = 4;
+	this.r = 2;
 
 	Object.keys(config).forEach(key => this[key] = config[key]);
 
