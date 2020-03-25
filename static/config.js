@@ -80,6 +80,29 @@ let widgets = {
 let masterWidgetList = [];
 let masterWidgetDict = {};
 
+// Set the parameters
+let masterCountry = undefined;
+let masterState = undefined;
+
+function updateData(){
+	/*
+	uses masterCountry and masterData to
+	send a request to get the necessary data
+	*/
+	$.ajax({
+		type: "POST",
+		url: "get_data",
+		context: document.body,
+		data: {'country': masterCountry, 'state': masterState},
+		success: function(data){
+			console.log(data);
+		}
+	})
+
+}
+
+updateData();
+
 function launchWidgets(){
 	$.each(widgets, function(key, val){
 		// Initialize each widget
@@ -99,8 +122,8 @@ function launchWidgets(){
  / /  / / /_/ (__  ) /_/  __/ /     / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
 /_/  /_/\__,_/____/\__/\___/_/     /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 */
-let masterCountry;
-let masterState;
+// let masterCountry;
+// let masterState;
 
 function masterUpdate(){
 	/*

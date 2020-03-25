@@ -100,38 +100,38 @@
 <script src="{{url_for('static', filename='config.js')}}"></script>
 
 <script>
-	let locs;
-	let confirmedData;
-	let deathData;
-	let recoveryData;
-	let dates;
-	$(document).ready(function(){
-
-		$.ajax({
-			type: "POST",
-			url: "get_locations",
-			context: document.body,
-			success: function(data){
-				// console.log(data);
-				locs = data;
-			}
-		});
-
-		$.ajax({
-			type: "POST",
-			url: "get_all_data",
-			context: document.body,
-			success: function(data){
-				confirmedData = JSON.parse(data['confirmed']);
-				deathData = JSON.parse(data['deaths']);
-				recoveryData = JSON.parse(data['recovered']);
-
-				dates = Object.keys(confirmedData[0]).slice(4);
-
-				launchWidgets();
-			}
-		})
-	});
+	// let locs;
+	// let confirmedData;
+	// let deathData;
+	// let recoveryData;
+	// let dates;
+	// $(document).ready(function(){
+	//
+	// 	$.ajax({
+	// 		type: "POST",
+	// 		url: "get_locations",
+	// 		context: document.body,
+	// 		success: function(data){
+	// 			// console.log(data);
+	// 			locs = data;
+	// 		}
+	// 	});
+	//
+	// 	$.ajax({
+	// 		type: "POST",
+	// 		url: "get_all_data",
+	// 		context: document.body,
+	// 		success: function(data){
+	// 			confirmedData = JSON.parse(data['confirmed']);
+	// 			deathData = JSON.parse(data['deaths']);
+	// 			recoveryData = JSON.parse(data['recovered']);
+	//
+	// 			dates = Object.keys(confirmedData[0]).slice(4);
+	//
+	// 			launchWidgets();
+	// 		}
+	// 	})
+	// });
 
 
 
