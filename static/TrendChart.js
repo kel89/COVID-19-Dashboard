@@ -8,7 +8,7 @@
 
 var TrendChart = function(config){
 	this.targetId = undefined;
-	this.show = ["active"];
+	this.show = ["confirmed"];
 	this.margin = {'left': 50, 'top': 40, 'right': 20, 'bottom': 20};
 	this.r = 2;
 
@@ -32,15 +32,17 @@ TrendChart.prototype.setupHTML = function(){
 			<span id='title-${this.id}' style='font-weight:bold'>Trend</span>
 			<div style='float:right;'>
 				<button class='btn btn-outline-secondary active'
-						id='activeButton-${this.id}'>
-					Active Cases
+						id='confirmedButton-${this.id}'>
+					Confirmed
 				</button>
 				<button class='btn btn-outline-secondary' id='deathButton-${this.id}'>
 					Deaths
 				</button>
+				<!--
 				<button class='btn btn-outline-secondary' id='recoveryButton-${this.id}'>
 					Recoveries
 				</button>
+				-->
 			</div>
 		</div>
 		<!--
@@ -76,9 +78,10 @@ TrendChart.prototype.setupHTML = function(){
 			$("#headerRow-"+this.id).height());
 
 	// Attach handlers to buttons
-	$("#activeButton-"+this.id).click(() => this.handleButton("active"));
+	// $("#activeButton-"+this.id).click(() => this.handleButton("active"));
+	$("#confirmedButton-"+this.id).click(() => this.handleButton("confirmed"))
 	$("#deathButton-"+this.id).click(() => this.handleButton("death"));
-	$("#recoveryButton-"+this.id).click(() => this.handleButton("recovery"));
+	// $("#recoveryButton-"+this.id).click(() => this.handleButton("recovery"));
 
 	$("body").append(`
 		<div id='tooltip-${this.id}' class='myTooltip'></div>
@@ -115,107 +118,46 @@ TrendChart.prototype.setupData = function(){
 	*/
 	// Initial setup
 	this.plotData = [];
-	let data;
 
-	// Filter all the data
-	confirmed_f = this.applyFilter(confirmedData)
+	// Get a list of dates
+	this.dates = masterTrendData.map(x => x.date);
 
-	// Active cases
-	if (this.show.indexOf('active') != -1){
-		conf = this.applyFilter(confirmedData);
-		death = this.applyFilter(deathData);
-		reco = this.applyFilter(recoveryData);
-
-		// do the subtractions
-		data = {}
-		// console.log(conf);
-		dates.forEach(function(date){
-			data[date] = conf[date] - death[date] - reco[date];
+	// format the trend data
+	if (this.show.indexOf("confirmed") != -1){
+		let data = []
+		masterTrendData.forEach(function(d){
+			let dat = {
+				x: d.date,
+				y: d.Confirmed,
+				which: "Confirmed"
+			}
+			data.push(dat)
 		});
-
-		// format the data correctly
-		// console.log(data);
-		this.plotData.push(this.formatData(data, "Active"));
+		this.plotData.push(data);
 	}
 
-	// Deaths
 	if (this.show.indexOf("death") != -1){
-		// Get the death data
-		death = this.applyFilter(deathData);
-		this.plotData.push(this.formatData(death, "Deaths"));
-	}
-
-	// Recovery
-	if (this.show.indexOf("recovery") != -1){
-		reco = this.applyFilter(recoveryData);
-		this.plotData.push(this.formatData(reco, "Recoveries"));
-	}
-
-	// console.log(this.plotData);
-}
-
-TrendChart.prototype.applyFilter = function(data){
-	/*
-	Applys the country and state filter
-	*/
-	data = deepCopy(data);
-	if (masterCountry != undefined){
-		data = data.filter(x => x["Country/Region"] == masterCountry);
-	}
-	if (masterState != undefined){
-		data = data.filter(x => x["Province/State"] == masterState);
-	}
-
-	// If both are undefined we need to sum it all
-	let newData = {};
-	dates.forEach(function(date){
-		let s = 0;
-		data.forEach(d => s += d[date]);
-		newData[date] = s;
-	});
-	return newData;
-
-	return;
-
-	if ( (masterCountry == undefined) & (masterState == undefined) ){
-		let newData = {};
-		dates.forEach(function(date){
-			let s = 0;
-			data.forEach(d => s += d[date]);
-			newData[date] = s;
+		let data = []
+		masterTrendData.forEach(function(d){
+			let dat = {
+				x: d.date,
+				y: d.Deaths,
+				which: "Deaths"
+			}
+			data.push(dat);
 		});
-		return newData;
-	}
-	else{
-		return data;
+		this.plotData.push(data)
 	}
 }
 
-TrendChart.prototype.formatData = function(data, name){
-	/*
-	Takes in a dictionary of data and transforms it into
-	an array, takes in optional name
-	*/
-	// console.log("there");
-	// console.log(data);
-	// console.log(name);
-	let newData = [];
-	dates.forEach(function(date){
-		newData.push({
-			x: date,
-			y : data[date],
-			which : name
-		});
-	});
-	return newData;
-}
 
 TrendChart.prototype.setupHelpers = function(){
 	/*
 	Setsup the scales, the axes
 	*/
+
 	this.xScale = d3.scaleTime()
-			.domain(d3.extent(dates.map(x => new Date(x))))
+			.domain(d3.extent(this.dates.map(x => new Date(x))))
 			.range([0, this.chartWidth]);
 
 	this.yScale = d3.scaleLinear()
@@ -261,7 +203,7 @@ TrendChart.prototype.plot = function(){
 	let _this = this;
 
 	// Update axes
-	this.xScale.domain(d3.extent(dates.map(x => new Date(x))));
+	this.xScale.domain(d3.extent(this.dates.map(x => new Date(x))));
 	this.yScale.domain([0, this.getMaxY()]);
 	this.xAxisG.transition().call(this.xAxis);
 	this.yAxisG.transition().call(this.yAxis);
@@ -277,7 +219,7 @@ TrendChart.prototype.plot = function(){
 		.attr('d', d => this.line(d))
 		.attr('class', 'line')
 		.attr('stroke', function(d){
-			if (d[0].which == 'Active'){
+			if (d[0].which == 'Confirmed'){
 				return 'red';
 			}
 			else if (d[0].which == 'Deaths'){
@@ -307,7 +249,7 @@ TrendChart.prototype.plot = function(){
 		.attr('r', this.r)
 		.attr('class', 'point')
 		.attr('fill', function(d){
-			if (d.which == "Active"){
+			if (d.which == "Confirmed"){
 				return "red";
 			}
 			else if (d.which == "Deaths"){
@@ -336,15 +278,15 @@ TrendChart.prototype.handleButton = function(which){
 	series to plot, the calls the update function for the plot
 	*/
 	let button;
-	if (which == "active"){
-		button = $("#activeButton-"+this.id)
+	if (which == "confirmed"){
+		button = $("#confirmedButton-"+this.id)
 	}
 	if (which == "death"){
 		button = $("#deathButton-"+this.id)
 	}
-	if (which == "recovery"){
-		button = $("#recoveryButton-"+this.id)
-	}
+	// if (which == "recovery"){
+	// 	button = $("#recoveryButton-"+this.id)
+	// }
 
 	if (button.hasClass('active')){
 		// it is showing, so take it out of the list
@@ -378,7 +320,7 @@ TrendChart.prototype.showTooltip = function(){
 	let date = this.xScale.invert(x);
 	let min_distance = Infinity;
 	let closestDate;
-	dates.forEach(function(d){
+	this.dates.forEach(function(d){
 		d = new Date(d);
 		let dist = Math.abs(d.getTime() - date.getTime());
 		if ( dist < min_distance ){
@@ -388,7 +330,7 @@ TrendChart.prototype.showTooltip = function(){
 	});
 
 	// Get the data
-	let ds = moment(closestDate).format("M/D/YY")
+	let ds = moment(closestDate).format("MM-D-YYYY")
 	let pd = this.plotData.flat(2);
 	let points = pd.filter(x => x.x == ds);
 	let html = '';
@@ -407,7 +349,7 @@ TrendChart.prototype.showTooltip = function(){
 	let w = tt.width() - 20;
 	let tx = x_page > window.innerWidth * .66 ? x_page - 80 : x_page + 20;
 	// $("#tooltip-"+this.id).position({top:y_page - 20, left:x_page + 20})
-	$("#tooltip-"+this.id).css({top:y_page - 20, left: (x_page - 120)})
+	$("#tooltip-"+this.id).css({top:y_page - 20, left: (x_page - 150)})
 
 	// $("#tooltip-"+this.id).position({top:100, left:100})
 
@@ -435,7 +377,7 @@ TrendChart.prototype.moveTooltip = function(){
 	let date = this.xScale.invert(x);
 	let min_distance = Infinity;
 	let closestDate;
-	dates.forEach(function(d){
+	this.dates.forEach(function(d){
 		d = new Date(d);
 		let dist = Math.abs(d.getTime() - date.getTime());
 		if ( dist < min_distance ){
@@ -446,7 +388,7 @@ TrendChart.prototype.moveTooltip = function(){
 
 	let w = $("#tooltip-" + this.id).width() - 20
 	let tx = x_page > window.innerWidth * .66 ? x_page - 80 : x_page + 20;
-	$("#tooltip-"+this.id).css({top:y_page - 20, left: (x_page -120)})
+	$("#tooltip-"+this.id).css({top:y_page - 20, left: (x_page -150)})
 	// $("#tooltip-"+this.id).position({top:event.pageY - 20, left:event.pageX + 20})
 	// $("#tooltip-"+this.id).offset({top:d3.event.pageY - 20, left:d3.event.pageX + 20})
 
@@ -479,6 +421,29 @@ TrendChart.prototype.update = function(){
 	}
 
 	this.setupData();
+	this.plot();
+}
+
+TrendChart.prototype.resize = function(){
+	// handle the heights
+	$("#chart-"+this.id).height( $("#"+this.targetId).height() -
+			$("#headerRow-"+this.id).height());
+
+	let chart = $("#chart-"+this.id);
+	this.width = chart.width();
+	this.height = chart.height();
+	this.chartWidth = this.width - this.margin.left - this.margin.right;
+	this.chartHeight = this.height - this.margin.top - this.margin.bottom;
+
+	this.svg.attr('width', this.width)
+		.attr('height', this.height)
+
+	this.xScale.range([0, this.chartWidth]);
+	this.yScale.range([this.chartHeight, 0]);
+
+	this.xAxisG.attr('transform', `translate(0, ${this.chartHeight})`)
+	this.yAxisG.attr('transform', `translate(0, 0)`)
+
 	this.plot();
 }
 

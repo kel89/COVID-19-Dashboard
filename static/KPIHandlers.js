@@ -12,25 +12,26 @@ var totalCasesKPI = function(config){
 	Object.keys(config).forEach(key => this[key] = config[key]);
 	this.id = generateId();
 
-	this.getData();
+	// this.getData();
+	this.show();
 }
 
-totalCasesKPI.prototype.getData = function(){
-	/*
-	Sends a call to the server to get the case count
-	*/
-	let _this = this;
-	$.ajax({
-		type: "POST",
-		url: "get_active_cases",
-		context: document.body,
-		success: function(data){
-			data = JSON.parse(data.data);
-			_this.data = data;
-			_this.show();
-		}
-	});
-}
+// totalCasesKPI.prototype.getData = function(){
+// 	/*
+// 	Sends a call to the server to get the case count
+// 	*/
+// 	let _this = this;
+// 	$.ajax({
+// 		type: "POST",
+// 		url: "get_active_cases",
+// 		context: document.body,
+// 		success: function(data){
+// 			data = JSON.parse(data.data);
+// 			_this.data = data;
+// 			_this.show();
+// 		}
+// 	});
+// }
 
 totalCasesKPI.prototype.show = function(){
 	/*
@@ -38,12 +39,12 @@ totalCasesKPI.prototype.show = function(){
 	Processes the raw data (summing it)
 	*/
 	// Process the data (get the last entry)
-	let last = this.data[this.data.length -1];
-	let count = last.count
+	let last = masterTrendData[masterTrendData.length -1];
+	let count = last.Confirmed
 
 	// Show in the HTML
 	$("#" + this.targetId).html(`
-		Total Active Cases: <span style='float:right; color:var(--main-red)'>
+		Global Confirmed Cases: <span style='float:right; color:var(--main-red)'>
 			<b>${count.toLocaleString()}</b>
 		</span>
 	`);
@@ -64,25 +65,26 @@ var totalDeathsKPI = function(config){
 	Object.keys(config).forEach(key => this[key] = config[key]);
 	this.id = generateId();
 
-	this.getData();
+	// this.getData();
+	this.show();
 }
 
-totalDeathsKPI.prototype.getData = function(){
-	/*
-	Sends a call to the server to get the case count
-	*/
-	let _this = this;
-	$.ajax({
-		type: "POST",
-		url: "get_deaths",
-		context: document.body,
-		success: function(data){
-			data = JSON.parse(data.data);
-			_this.data = data;
-			_this.show();
-		}
-	});
-}
+// totalDeathsKPI.prototype.getData = function(){
+// 	/*
+// 	Sends a call to the server to get the case count
+// 	*/
+// 	let _this = this;
+// 	$.ajax({
+// 		type: "POST",
+// 		url: "get_deaths",
+// 		context: document.body,
+// 		success: function(data){
+// 			data = JSON.parse(data.data);
+// 			_this.data = data;
+// 			_this.show();
+// 		}
+// 	});
+// }
 
 totalDeathsKPI.prototype.show = function(){
 	/*
@@ -90,12 +92,12 @@ totalDeathsKPI.prototype.show = function(){
 	Processes the raw data (summing it)
 	*/
 	// Process the data (get the last entry)
-	let last = this.data[this.data.length -1];
-	let count = last.count
+	let last = masterTrendData[masterTrendData.length -1];
+	let count = last.Deaths
 
 	// Show in the HTML
 	$("#" + this.targetId).html(`
-		Total Deaths: <span style='float:right; color:white;'>
+		Global Deaths: <span style='float:right; color:white;'>
 			<b>${count.toLocaleString()}</b>
 		</span>
 	`);

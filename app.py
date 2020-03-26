@@ -57,9 +57,12 @@ def get_data():
 	# get the request arguments
 	country = request.form.get('country')
 	state = request.form.get('state')
+	print("Country:", country)
+	print("State:", state)
 
 	# Case 1: both undefined --> Global trend, show countries
 	if (country == None and state == None):
+		print("HERE")
 		trends = sfd.drop(['Country/Region', 'Province/State', 'Admin2'], axis=1)\
 								.groupby(['date'], as_index=False).sum()\
 								.to_json(orient='records')
@@ -71,6 +74,7 @@ def get_data():
 
 	# Case 2: country defined, state not --> country trend, show states (if any)
 	elif (country != None and state == None):
+		print("THERE")
 		trends = sfd.loc[sfd['Country/Region'] == country]\
 				.drop(['Country/Region', 'Province/State', 'Admin2'], axis=1)\
 				.groupby(['date'], as_index=False).sum()\
@@ -83,18 +87,25 @@ def get_data():
 
 
 	# Case 3: country defined, state defined --> state trend, show counties if exist
+	else:
+		print("EVERYWHERE")
+		# neither ar enone (we want to show county level data)
+		trends = sfd.loc[sfd['Province/State'] == country] \
+				.drop(['Country/Region', 'Province/State', 'Admin2'], axis=1)\
+    			.groupby(['date'], as_index=False).sum()\
+				.to_json(orient='records')
 
-	# out_data = {
-	# 	trend: ,
-	# 	location_list,
-	# 	kpis:
-	# }
+		location_data = sfd[(sfd['Province/State'] == state) & (sfd.date == latest_date)] \
+				.drop(['date', 'Country/Region', 'Province/State'], axis=1) \
+				.groupby('Admin2', as_index=False).sum() \
+				.to_json(orient='records')
 
+	# Gather the data
+	# print(trends)
 	out_data = {
 		'trends' : trends,
 		'location_data': location_data
 	}
-
 
 	return jsonify(out_data)
 

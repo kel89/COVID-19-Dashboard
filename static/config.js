@@ -40,6 +40,18 @@ size();
                /____/
 */
 
+
+function launchWidgets(){
+	$.each(widgets, function(key, val){
+		// Initialize each widget
+		let proto = val['proto'];
+		let config = val['config'];
+		let widget = new proto(config);
+		masterWidgetList.push(widget);
+		masterWidgetDict[key] = widget;
+	})
+}
+
 let widgets = {
 	'Total Cases KPI' : {
 							proto: totalCasesKPI,
@@ -55,12 +67,12 @@ let widgets = {
 									}
 						},
 
-	"Recovered KPI": 	{
-							proto: recoveredKPI,
-							config: {
-										targetId: "kpi3"
-									}
-						},
+	// "Recovered KPI": 	{
+	// 						proto: recoveredKPI,
+	// 						config: {
+	// 									targetId: "kpi3"
+	// 								}
+	// 					},
 
 	"Location List": 	{
 							proto: LocationList,
@@ -84,6 +96,9 @@ let masterWidgetDict = {};
 let masterCountry = undefined;
 let masterState = undefined;
 
+let masterTrendData;
+let masterLocationData;
+let _load = true;
 function updateData(){
 	/*
 	uses masterCountry and masterData to
@@ -95,7 +110,17 @@ function updateData(){
 		context: document.body,
 		data: {'country': masterCountry, 'state': masterState},
 		success: function(data){
-			console.log(data);
+			// parse the data
+			masterTrendData = JSON.parse(data.trends);
+			masterLocationData = JSON.parse(data.location_data);
+
+			if (_load){
+				_load = false;
+				launchWidgets();
+			}
+			else{
+				masterUpdate()
+			}
 		}
 	})
 
@@ -103,16 +128,6 @@ function updateData(){
 
 updateData();
 
-function launchWidgets(){
-	$.each(widgets, function(key, val){
-		// Initialize each widget
-		let proto = val['proto'];
-		let config = val['config'];
-		let widget = new proto(config);
-		masterWidgetList.push(widget);
-		masterWidgetDict[key] = widget;
-	})
-}
 
 
 /*
@@ -129,8 +144,6 @@ function masterUpdate(){
 	/*
 	Calls the udpate functions in the widgets
 	*/
-	console.log(masterCountry);
-	console.log(masterState);
 	masterWidgetList.forEach(function(widget){
 		// console.log(widget);
 		// console.log(masterCountry);
@@ -154,5 +167,9 @@ $(window).resize(function(){
 	size();
 
 	// Reszie the widgets as appropriate
-	//TODO
+	masterWidgetList.forEach(function(widget){
+		if (typeof widget.resize == 'function'){
+			widget.resize();
+		}
+	})
 })

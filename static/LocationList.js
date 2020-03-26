@@ -33,9 +33,8 @@ LocationList.prototype.setupHTML = function(){
 	-->
 	<tr>
 		<th>Location</th>
-		<th>Active Cases</th>
+		<th>Confirmed</th>
 		<th>Deaths</th>
-		<th>Recoveries</th>
 	</tr>
 	`;
 
@@ -73,101 +72,32 @@ LocationList.prototype.setupData = function(){
 	*/
 	let _this = this;
 
-	let currentDate = dates[dates.length -1];
-	let locations = confirmedData.map(function(d){
+	// determine what the location key is
+	let key;
+	if (masterCountry == undefined & masterState == undefined){
+		key = "Country/Region"
+	}
+	else if (masterState == undefined){
+		key = "Province/State"
+	}
+	else{
+		key = "Admin2"
+	}
+
+	// Map the data
+	this.tableData = masterLocationData.map(function(d){
 		return {
-			'Country' : d['Country/Region'],
-			'State': d['Province/State']
+			location: d[key],
+			confirmed: d.Confirmed,
+			deaths: d.Deaths
 		}
 	});
 
-	let tableData = [];
-
-	// check to see if we need to pass over to the countries based on
-	// the lack of states
-	let pass = true;
-	if (masterCountry != undefined){
-		// check to see if there are states?
-		if (locations.filter(x => x.Country == masterCountry).map(x => x.State).length == 1){
-			// There are no states, so just show country
-			this.showing = 'Country'
-			masterState = undefined;
-			pass = false;
-			
-			// hide the back button
-			$("#back-"+this.id).hide();
-		}
-	}
-
-	// If state is defined, filter on that
-	if (masterCountry != undefined & pass){
-		// get the states
-		// console.log(locations.filter(x => x.Country == masterCountry));
-
-		let states = locations.filter(x => x.Country == masterCountry).map(x => x.State);
-		states.forEach(function(state){
-			conf = confirmedData.filter(x => x['Province/State'] == state)[0][currentDate];
-			death = deathData.filter(x => x['Province/State'] == state)[0][currentDate];
-			reco = recoveryData.filter(x => x['Province/State'] == state)[0][currentDate];
-
-			// .filter(x => (x["Country/Region" == masterCountry])
-			// 		& (x['Province/State'] == state))[0][currentDate];
-
-			// make data object
-			tableData.push({
-				Location: state,
-				'Active Cases' : (conf - death - reco),
-				'Deaths': death,
-				'Recoveries' : reco
-			});
-		})
-
-
-	}
-	else{
-		// console.log("undefined country, showing all");
-		let countries = d3.set(locations.map(x => x.Country)).values();
-		// console.log(countries);
-		countries.forEach(function(country){
-			// get confirmed cases
-			let confirmedCount = _this.getCount(confirmedData, country);
-
-			// get deaths
-			let deathCount = _this.getCount(deathData, country);
-
-			// get recovered
-			let recoveredCount = _this.getCount(recoveryData, country);
-
-			// make data object
-			tableData.push({
-				Location: country,
-				'Active Cases' : (confirmedCount - deathCount - recoveredCount),
-				'Deaths': deathCount,
-				'Recoveries' : recoveredCount
-			});
-		})
-	}
-
-	this.tableData = tableData;
+	// Sort it
+	this.tableData = this.tableData.sort((a,b) => b.confirmed - a.confirmed);
 
 }
 
-LocationList.prototype.getCount = function(data, country, state){
-	/*
-	Takes in a thing of data, and returns
-	the count for a given location, if state is not undefined
-	will focus on that instead
-	*/
-	let key = state == undefined ? "Country/Region" : "Province/State";
-	let toMatch = state==undefined ? country : state;
-
-	let currentDate = dates[dates.length -1];
-
-	let filtered = data.filter(x => x[key] == toMatch);
-	let count = filtered.reduce((acc, cur) => acc + cur[currentDate], 0);
-	return count;
-
-}
 
 LocationList.prototype.makeTable = function(){
 	/*
@@ -175,30 +105,15 @@ LocationList.prototype.makeTable = function(){
 	*/
 	let _this = this;
 	// sort the data
-	this.tableData.sort((a, b) => b['Active Cases'] - a['Active Cases']);
 	let html = '';
 	this.tableData.forEach(function(d){
-		// console.log(d);
-		let location = d.Location;
-		let active = d['Active Cases'];
-		let deaths = d.Deaths;
-		let reco = d.Recoveries;
 		html += `
 			<tr>
-				<td><b>${location}</b></td>
-				<td>${active == null ? 0 : active.toLocaleString()}</td>
-				<td>${deaths == null ? 0 : deaths.toLocaleString()}</td>
-				<td>${reco == null ? 0 : reco.toLocaleString()}</td>
+				<td><b>${d.location}</b></td>
+				<td>${d.confirmed == null ? 0 : d.confirmed.toLocaleString()}</td>
+				<td>${d.deaths == null ? 0 : d.deaths.toLocaleString()}</td>
 			</tr>
 		`;
-		// html += `
-		// 	<tr>
-		// 		<td><b>${d.Location.}</b></td>
-		// 		<td>${d['Active Cases'].toLocaleString()}</td>
-		// 		<td>${d.Deaths.toLocaleString()}</td>
-		// 		<td>${d.Recoveries.toLocaleString()}</td>
-		// 	</tr>
-		// `;
 	});
 
 	$(`#table-${this.id}`).html(this.tableHeaderHTML + html);
@@ -216,22 +131,26 @@ LocationList.prototype.rowClick = function(row){
 		return;
 	}
 
-	if (this.showing == "Country"){
-		// switch to state
-		masterCountry = where;
-		$("#back-"+this.id).show();
-		this.showing="State"
+	// Determine what is showing
+	if (masterCountry == undefined & masterState == undefined){
+		// Looking at countries
+		masterCountry = where
+	}
+	else if (masterState == undefined){
+		// Looking at states
+		return;
+		masterState = where
 
 	}
 	else{
-		// Switch to country level
-		// masterCountry = undefined;
-		masterState = where;
-
+		// Looking at Admin2 (County)
+		return; // do nothing
 	}
 
+	// Show the back button
+	$("#back-"+this.id).show();
 
-	masterUpdate();
+	updateData();
 }
 
 LocationList.prototype.back = function(){
@@ -242,7 +161,7 @@ LocationList.prototype.back = function(){
 	masterCountry = undefined;
 	masterState = undefined;
 	$("#back-"+this.id).hide();
-	masterUpdate();
+	updateData();
 
 }
 
